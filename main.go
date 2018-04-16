@@ -6,6 +6,7 @@ import (
 	"github.com/luisfernandogaido/chesscom/api"
 	"github.com/luisfernandogaido/chesscom/pgn"
 	"fmt"
+	"flag"
 )
 
 const (
@@ -15,19 +16,20 @@ const (
 )
 
 func main() {
+	flag.Parse()
 	last, err := Last()
 	if err != nil {
 		log.Fatal(err)
 	}
 	games, err := AllAfter(last)
 	games = pgn.Reverse(games)
-	fileName, err := pgn.Save(games, folder)
-	if err != nil {
-		log.Fatal(err)
-	}
 	if len(games) == 0 {
 		fmt.Println("Nenhuma partida nova.")
 		return
+	}
+	fileName, err := pgn.Save(games, folder)
+	if err != nil {
+		log.Fatal(err)
 	}
 	fmt.Printf("%v salvo com %v partidas.\n", fileName, len(games))
 	last = games[len(games)-1].Link
