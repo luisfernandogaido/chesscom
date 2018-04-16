@@ -25,12 +25,26 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(fileName)
+	if len(games) == 0 {
+		fmt.Println("Nenhuma partida nova.")
+		return
+	}
+	fmt.Printf("%v salvo com %v partidas.\n", fileName, len(games))
+	last = games[len(games)-1].Link
+	err = SaveLast(last)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%v salvo em last.txt\n", last)
 }
 
 func Last() (string, error) {
 	bytes, err := ioutil.ReadFile(lastFile)
 	return string(bytes), err
+}
+
+func SaveLast(l string) (error) {
+	return ioutil.WriteFile(lastFile, []byte(l), 0666)
 }
 
 func AllAfter(last string) ([]pgn.Game, error) {

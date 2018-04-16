@@ -5,6 +5,7 @@ import (
 	"strings"
 	"strconv"
 	"path/filepath"
+	"os"
 )
 
 type Game struct {
@@ -27,7 +28,25 @@ type Game struct {
 }
 
 func (g *Game) String() string {
-	ret := `[Event "Live Chess"]`
+	//	Mon Jan 2 15:04:05 -0700 MST 2006
+	ret := "[Event \"" + g.Event + "\"]\n" +
+		"[Site \"" + g.Site + "\"]\n" +
+		"[Date \"" + g.Date.Format("2006.01.02") + "\"]\n" +
+		"[Round \"" + g.Round + "\"]\n" +
+		"[White \"" + g.White + "\"]\n" +
+		"[Black \"" + g.Black + "\"]\n" +
+		"[Result \"" + g.Result + "\"]\n" +
+		"[WhiteElo \"" + strconv.Itoa(g.WhiteElo) + "\"]\n" +
+		"[BlackElo \"" + strconv.Itoa(g.BlackElo) + "\"]\n" +
+		"[TimeControl \"" + g.TimeControl + "\"]\n" +
+		"[Termination \"" + g.Termination + "\"]\n" +
+		"[StartTime \"" + g.StartTime.Format("15:04:05") + "\"]\n" +
+		"[EndDate \"" + g.EndDate.Format("2006.01.02") + "\"]\n" +
+		"[EndTime \"" + g.EndTime.Format("15:04:05") + "\"]\n" +
+		"[Link \"" + g.Link + "\"]\n" +
+		"\n" +
+		g.Moves + "\n" +
+		"\n"
 	return ret
 }
 
@@ -118,8 +137,17 @@ func Reverse(games []Game) []Game {
 }
 
 func Save(games []Game, folder string) (string, error) {
-	//	Mon Jan 2 15:04:05 -0700 MST 2006
 	fileName := filepath.Join(folder, time.Now().Format("20060102-150405")+".pgn")
-
-	return "", nil
+	f, err := os.OpenFile(fileName, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0666)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	for _, g := range games {
+		_, err = f.WriteString(g.String())
+		if err != nil {
+			return "", err
+		}
+	}
+	return fileName, nil
 }
