@@ -11,15 +11,15 @@ import (
 
 const (
 	user     = "luisfernandogaido"
-	folder   = "C:\\Users\\lfgai\\Desktop"
-	lastFile = "C:\\Users\\lfgai\\Desktop\\last.txt"
+	folder   = "C:\\GoPrograms\\chesscom"
+	lastFile = "C:\\GoPrograms\\chesscom\\last.txt"
 )
 
 func main() {
 	flag.Parse()
 	last, err := Last()
 	if err != nil {
-		log.Fatal(err)
+		last = "nao existe"
 	}
 	games, err := AllAfter(last)
 	games = pgn.Reverse(games)
