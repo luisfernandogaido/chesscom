@@ -1,31 +1,61 @@
 package main
 
 import (
-	"github.com/luisfernandogaido/chesscom/api"
+	"io/ioutil"
 	"log"
-	"os"
+	"github.com/luisfernandogaido/chesscom/api"
+	"github.com/luisfernandogaido/chesscom/pgn"
 	"fmt"
 )
 
+const (
+	user     = "luisfernandogaido"
+	folder   = "C:\\Users\\lfgai\\Desktop"
+	lastFile = "C:\\Users\\lfgai\\Desktop\\last.txt"
+)
+
 func main() {
-	archives, err := api.Archives("luisfernandogaido")
+	last, err := Last()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(len(archives))
-	f, err := os.OpenFile("./luisfernandogaido.pgn", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0664)
+	games, err := AllAfter(last)
+	games = pgn.Reverse(games)
+	fileName, err := pgn.Save(games, folder)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()
-	for k, a := range archives {
-		bytes, err := api.MultiGamePgn(a)
+	fmt.Println(fileName)
+}
+
+func Last() (string, error) {
+	bytes, err := ioutil.ReadFile(lastFile)
+	return string(bytes), err
+}
+
+func AllAfter(last string) ([]pgn.Game, error) {
+	archives, err := api.Archives(user)
+	if err != nil {
+		return nil, err
+	}
+	all := make([]pgn.Game, 0)
+Loop:
+	for i := len(archives) - 1; i >= 0; i-- {
+		arc := archives[i]
+		bytes, err := api.MultiGamePgn(arc)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
-		if _, err = f.Write(bytes); err != nil {
-			log.Fatal(err)
+		gamesArc, err := pgn.Parse(bytes)
+		if err != nil {
+			return nil, err
 		}
-		fmt.Println(k)
+		for _, g := range gamesArc {
+			if g.Link == last {
+				break Loop
+			}
+			all = append(all, g)
+		}
 	}
+	return all, nil
 }
