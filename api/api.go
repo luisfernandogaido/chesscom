@@ -1,10 +1,10 @@
 package api
 
 import (
-	"net/http"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"encoding/json"
+	"net/http"
 )
 
 const (

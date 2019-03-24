@@ -1,12 +1,12 @@
 package main
 
 import (
-	"io/ioutil"
-	"log"
+	"flag"
+	"fmt"
 	"github.com/luisfernandogaido/chesscom/api"
 	"github.com/luisfernandogaido/chesscom/pgn"
-	"fmt"
-	"flag"
+	"io/ioutil"
+	"log"
 )
 
 const (
@@ -45,7 +45,7 @@ func Last() (string, error) {
 	return string(bytes), err
 }
 
-func SaveLast(l string) (error) {
+func SaveLast(l string) error {
 	return ioutil.WriteFile(lastFile, []byte(l), 0666)
 }
 
